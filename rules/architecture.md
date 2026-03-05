@@ -139,7 +139,7 @@ Both dashboard and gateway share a single `newton_gateway` database with split m
 | Model | Purpose | Key Fields |
 |-------|---------|------------|
 | ApiKey | API bearer tokens | id, user_id, address, api_key, permissions |
-| PolicyClientSecret | Policy client secrets (read/delete, writes via Gateway) | policy_client_address, policy_data_address |
+| PolicyClientSecret | Policy client secrets (read/delete, writes via Gateway) | chain_id, policy_client_address, policy_data_address |
 
 ### Custom Column Types
 

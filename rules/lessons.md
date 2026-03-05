@@ -39,3 +39,19 @@ Each entry:
   - Mainnet (Ethereum + Base): `gateway.{env?}.newton.xyz`
   - Staging prefix: `stagef.` after `gateway.`
   - Dashboard-api does NOT proxy through gateway — it talks directly to chain RPCs for on-chain reads. Gateway multichain changes are transparent to dashboard's blockchain layer.
+
+### 4. Cloudflare Free plan does not cover multi-level subdomains
+
+- **What happened**: Created proxied CNAME records for `dashboard.api.newton.xyz` and `dashboard.api.stagef.newton.xyz` in the `newton.xyz` Cloudflare zone (Free plan). SSL handshake failed because Universal SSL only covers `*.newton.xyz` (one level), not `*.api.newton.xyz`.
+- **Why**: Cloudflare's free Universal SSL certificate covers the apex and one wildcard level. Multi-level subdomains like `a.b.domain.xyz` require Advanced Certificate Manager (paid) or a zone plan upgrade.
+- **Rule**: For backend API subdomains with multi-level names (e.g., `dashboard.api.newton.xyz`), use DNS-only mode (grey cloud) and let the origin (ALB) handle SSL via ACM certificates. This avoids Cloudflare edge SSL limitations and is appropriate for API backends that don't need CDN/WAF.
+
+### 5. Database migration ownership is split across repos
+
+- **What happened**: Confusion about where `chain_id` column migrations would run for `policy_client_secret` and `encrypted_data_refs` tables.
+- **Why**: The `newton_gateway` database is shared between dashboard-api and the gateway. Each repo owns different tables and uses different migration tools. The migration execution happens in different CI pipelines.
+- **Rule**: Migration ownership and execution:
+  - **Dashboard tables** (`user`, `user_factor`, `user_key`, `cli_session`, `project`): Alembic in `newton-dashboard-api`. Runs automatically on container startup via `run.sh` (`alembic upgrade head`).
+  - **Gateway tables** (`api_keys`, `policy_client_secret`, `encrypted_data_refs`): sqlx in `newton-prover-avs`. Runs automatically during `newton-prover-avs-deploy` CDK deploy via `scripts/run-migration.sh` as a one-shot ECS Fargate task.
+  - **Local dev**: Gateway tables bootstrapped by `scripts/init_gateway_tables.sql` (runs at Docker init, not incrementally — recreate volumes for schema changes: `make clean && make runtime`).
+  - **Deploy ordering for cross-repo schema changes**: Gateway migration must land first (deploy newton-prover-avs), then dashboard-api code that references new columns can deploy. Otherwise dashboard queries will fail on missing columns.

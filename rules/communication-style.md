@@ -28,6 +28,15 @@ See also: `.claude/PR_REVIEW_GUIDE.md`
 - **First comments can open with brief positive framing**: "Good work on X — the Y makes sense" is fine for the initial review comment, but keep it to one line max
 - **Corrections are direct**: "This is not accurate — [correct fact]" or "To clarify, [what I actually meant]" — no softening
 
+## AI Agent Identity Rule
+
+Every GitHub comment, PR review, PR description, and issue comment is posted under Dennis's identity. It must be indistinguishable from something Dennis wrote personally.
+
+- **Never recap what changed** — the author knows what their diff contains. Only add information they don't already have.
+- **Never sound like a summarizer** — no structured recaps, no "the X is updated and Y is removed" approval messages.
+- **Approval comments should be minimal** — note remaining concerns or say nothing beyond the approval. Do not restate the changes.
+- **What sounds like AI (never do this)**: "Looks good — the X is removed and Y is updated", "FYI: [person] noted that...", structured summaries of what each file change does, overly formal tone with complete sentences describing each modification.
+
 ## What NOT to Do (Applies Everywhere)
 
 - No "Overall review from Dennis:" self-labels

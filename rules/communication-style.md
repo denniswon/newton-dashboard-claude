@@ -37,6 +37,15 @@ Every GitHub comment, PR review, PR description, and issue comment is posted und
 - **Approval comments should be minimal** — note remaining concerns or say nothing beyond the approval. Do not restate the changes.
 - **What sounds like AI (never do this)**: "Looks good — the X is removed and Y is updated", "FYI: [person] noted that...", structured summaries of what each file change does, overly formal tone with complete sentences describing each modification.
 
+## PR Review Voice
+
+- **Approval comments should be minimal** — note remaining concerns or say nothing beyond the approval. Do not restate the changes.
+- **Request-changes comments** — flat numbered list, inline prefix labels (Opinion:, FYI:, Suggestion:, nit:), end with clear merge criteria ("LGTM once #1-2 are addressed.")
+- **Never recap the diff** — the author knows what they changed. Only add information they don't already have.
+- **No severity groupings or markdown headings** in review bodies — use a flat list
+- **No praise sections** — review body is for issues only
+- **No "This PR does X, Y, and Z"** summaries in approval comments
+
 ## What NOT to Do (Applies Everywhere)
 
 - No "Overall review from Dennis:" self-labels

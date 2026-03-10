@@ -39,12 +39,12 @@ Every GitHub comment, PR review, PR description, and issue comment is posted und
 
 ## PR Review Voice
 
-- **Approval comments should be minimal** — note remaining concerns or say nothing beyond the approval. Do not restate the changes.
-- **Request-changes comments** — flat numbered list, inline prefix labels (Opinion:, FYI:, Suggestion:, nit:), end with clear merge criteria ("LGTM once #1-2 are addressed.")
+- **Use inline comments for specific issues** — put feedback where the code is, not in the review body. Use prefix labels (Opinion:, FYI:, Suggestion:, nit:) on inline comments.
+- **Review body is just the verdict** — one or two sentences max. State the blocking concern if request-changes, or a remaining concern if approving. Don't repeat what's already in inline comments.
+- **Approval body should be minimal** — note remaining concerns or say nothing beyond the approval. Do not restate the changes.
 - **Never recap the diff** — the author knows what they changed. Only add information they don't already have.
-- **No severity groupings or markdown headings** in review bodies — use a flat list
+- **No severity groupings, numbered lists, or markdown headings** in review bodies — those duplicate inline comments
 - **No praise sections** — review body is for issues only
-- **No "This PR does X, Y, and Z"** summaries in approval comments
 
 ## What NOT to Do (Applies Everywhere)
 

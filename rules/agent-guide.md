@@ -60,6 +60,18 @@ If tests fail unexpectedly or you realize the data model needs to change:
 3. Propose the model change and its migration impact
 4. Get confirmation before continuing
 
+### Verify Before Claiming
+
+All output — code, docs, comments, CLI instructions, config examples — must be verified against the actual codebase before submission. Do NOT assume or guess:
+
+- **Makefile targets**: Grep the Makefile to confirm a target exists and what parameters it accepts before documenting it
+- **CLI flags and subcommands**: Read the CLI parser to confirm exact flag names and required subcommands
+- **File paths and naming**: Use Glob/ls to confirm files exist where you say they do
+- **Config fields and defaults**: Read the config definition and its defaults, not just example files
+- **Prerequisites and dependencies**: Verify tools are actually used (grep for invocations) before listing as prerequisites
+
+If you are uncertain about any claim, ASK the user rather than guessing. A missing fact is better than a false statement.
+
 ### Quality Bar
 
 Treat every change as if it goes to production:

@@ -90,16 +90,20 @@ Run formatting and lint checks to catch issues introduced during conflict resolu
 | `Makefile` with `fmt`/`lint` targets (no Cargo.toml) | Python (ruff/black) | `make fmt` | `make lint` |
 | `biome.json` + `package.json` | TypeScript (Biome) | `npm run format` | `npm run lint` |
 | `package.json` with `lint` script (no biome) | TypeScript (ESLint) | `npm run lint -- --fix` | `npm run lint` |
-| `foundry.toml` only (no Cargo.toml, no package.json) | Solidity-only | `forge fmt` | `forge build` |
+| `foundry.toml` + `pnpm-workspace.yaml` | Foundry + pnpm monorepo | `forge fmt` | `forge build && pnpm -r run lint` |
+| `foundry.toml` only (no Cargo.toml, no package.json, no pnpm) | Solidity-only | `forge fmt` | `forge build` |
 | None of the above | Unknown | Skip verification | Skip verification |
 
 **Detection logic** (run at project root):
 1. Check for `Cargo.toml` → Rust project. Use `make fmt && make clippy` if Makefile has those targets, otherwise `cargo fmt && cargo clippy --workspace -- -D warnings`.
 2. Else check for `biome.json` → Biome project. Use `npm run format && npm run lint`.
-3. Else check for `package.json` with `lint` script → Node/TS project. Use `npm run lint -- --fix && npm run lint`.
+3. Else check for `package.json` with `lint` script → Node/TS project. Use the appropriate package manager (`npm`/`pnpm`/`yarn` — detect from lockfile). Run `<pm> run lint -- --fix && <pm> run lint`.
 4. Else check for `Makefile` with `fmt`/`lint` targets → Python project. Use `make fmt && make lint`.
-5. Else check for `foundry.toml` → Solidity-only project. Use `forge fmt && forge build`.
-6. Else skip verification with a warning.
+5. Else check for `foundry.toml` + `pnpm-workspace.yaml` → Foundry + pnpm monorepo. Use `forge fmt && forge build && pnpm -r run lint` (runs lint across all workspace packages that have it).
+6. Else check for `foundry.toml` alone → Solidity-only project. Use `forge fmt && forge build`.
+7. Else skip verification with a warning.
+
+**Package manager detection** (for Node/TS projects): Check for `pnpm-lock.yaml` → use `pnpm`. Check for `yarn.lock` → use `yarn`. Otherwise use `npm`.
 
 - If lint reports errors, fix them.
 - If format changed files, those changes need to be amended into the last commit (or added as a fixup).

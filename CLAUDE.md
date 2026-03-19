@@ -15,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `make test` - Run tests with coverage enforcement (70% branch minimum)
 - `make coverage` - Run tests with coverage enforcement + HTML report
 - `make init EMAIL=user@example.com` - Initialize a user account
+- `make init-agent ADDRESS=0x... [NAME=my-agent]` - Create agent user with API key (headless)
 - `make datadog` - Start Datadog agent
 - `make down` - Stop all Docker containers
 - `make clean` - Clean up Docker resources and virtual environment
@@ -73,12 +74,13 @@ alembic upgrade head
 - `app/services/` - Business logic services
 - `app/middleware/` - Request/response middleware
 - `app/utils/` - Utility functions and constants
-- `scripts/` - Maintenance scripts (ABI sync, DB init, Datadog monitors, E2E tests)
+- `scripts/` - Maintenance scripts (ABI sync, DB init, agent bootstrap, Datadog monitors, E2E tests)
 
 ### Key Components
 
 #### Authentication System
 - Multi-factor authentication with email, passkey, and SIWE (Sign-in with Ethereum) support
+- API key → JWT token exchange for headless agent authentication (`POST /v1/auth/token`)
 - JWT token management with refresh token rotation
 - Token blacklisting using Redis for secure logout
 - JWKS endpoint for public key distribution

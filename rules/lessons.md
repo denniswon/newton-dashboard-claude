@@ -64,3 +64,28 @@ Each entry:
   - **Exception semantics matter**: `AuthorizationError` = business logic denial (contract revert, ownership mismatch). `BlockchainError` = infrastructure failure (missing RPC URL, network error, provider unreachable). Never conflate the two — callers rely on the distinction to choose 403 vs 502.
   - **New chain checklist**: When adding support for a new chain, update all three layers: (1) `app/core/config/secrets.py` (config field), (2) AWS Secrets Manager (both stagef and prod), (3) `deploy/.../newton_dashboard_api_stack.py` (ECS secret injection). Missing any one of these causes silent failures.
   - **Test with the actual chain**: If an endpoint accepts `chain_id`, verify it works for every supported chain in staging, not just the default (Sepolia).
+
+### 7. Sync TestClient causes event loop conflicts with async Redis in integration tests
+
+- **What happened**: Integration tests for `POST /v1/auth/token` used the sync `TestClient` (`ClientWithLogin`). Tests that called endpoints internally using Redis (refresh, blacklist check) failed with `RuntimeError: Event loop is closed` and `Task got Future attached to a different loop`.
+- **Why**: `TestClient` runs requests in a background thread with its own event loop. When the endpoint handler calls async Redis (`RedisClient.get_instance()`), it tries to reuse a singleton Redis connection from a different loop. The `clean_up` fixture resets singletons between tests, but within a single test the loop mismatch persists.
+- **Rule**: Integration tests that hit endpoints which internally use async Redis or other async singletons MUST use `httpx.AsyncClient` with `ASGITransport(app=app)` instead of the sync `TestClient`. This keeps everything on the same event loop. Pattern:
+  ```python
+  async with httpx.AsyncClient(
+      transport=ASGITransport(app=app), base_url="http://test"
+  ) as client:
+      response = await client.post("/endpoint", ...)
+  ```
+  See: `tests/integration/api/v1/routes/authn/session/test_refresh.py` for the established pattern.
+
+### 8. New auth flows should not require changes to existing route handlers
+
+- **What happened**: When designing agent authentication, the initial instinct was to add API key validation to each protected endpoint. Instead, the API key → JWT exchange pattern was chosen: agents exchange their `gw_` key for a standard JWT once, then use that JWT everywhere.
+- **Why**: All existing routes use `get_current_user_id` which extracts `sub` from a JWT. By converting the API key to a JWT upfront, zero route handlers needed modification. The only endpoint that checks `verified_factors` content is `POST /v1/authn/cli-token` (requires >= 1 factor), which agents don't need.
+- **Rule**: When adding a new auth mechanism, prefer converting to the existing token format (JWT) at the boundary rather than threading a new auth type through every route. Check `verified_factors` usage across all routes — if only one or two endpoints inspect it, the new flow can set it to `[]` without breaking anything.
+
+### 9. Design specs should be updated to match actual implementation before merging
+
+- **What happened**: The design spec referenced `get_by_api_key` (already existed) instead of the new `get_active_api_key`, and `ttl_seconds` instead of `ttl: Optional[timedelta]`. These were caught during docs-sync but could have confused future readers.
+- **Why**: Spec was written before implementation. Implementation made different (better) naming choices but the spec wasn't updated until the docs-sync pass.
+- **Rule**: After implementing from a spec, diff the spec against what was actually built. Update method names, parameter names, and descriptions to match reality. The spec becomes a historical reference — it should describe what was built, not what was planned.

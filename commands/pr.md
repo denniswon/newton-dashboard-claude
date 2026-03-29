@@ -4,16 +4,12 @@ Create a pull request for the current branch against its parent branch.
 
 ## Steps
 
-1. **Determine the parent/base branch first.** The parent branch is NOT always `main`. Check where this branch was forked from using `git log --oneline --graph --all -20` or `git log --oneline --merges -5`. Common parents: `main`, `master`, `develop`, or a feature branch.
-2. Run `git log --oneline $(git merge-base HEAD <parent-branch>)..HEAD` to understand all commits on this branch since it diverged from the parent.
-3. Run `git diff $(git merge-base HEAD <parent-branch>)..HEAD --stat` to get a summary of files changed.
-4. Run `git diff $(git merge-base HEAD <parent-branch>)..HEAD` to read the actual diff.
+1. Run `git log --oneline $(git merge-base HEAD main)..HEAD` (or the appropriate parent branch) to understand all commits and changes.
+2. Run `git diff $(git merge-base HEAD main)..HEAD --stat` to get a summary of files changed.
+3. Run `git diff $(git merge-base HEAD main)..HEAD` to read the actual diff.
+4. Determine the parent/base branch: check if the branch was created from `main`, `master`, or another branch. Use `git log --oneline --graph --all -20` if unclear.
 5. Write a conventional commit title in the format `type: subject` where type is one of: feat, fix, refactor, docs, test, chore, perf, ci, build.
-6. Write a PR description that covers:
-   - **What**: Core functionality changed (1-3 sentences)
-   - **Why**: Motivation and context
-   - **Impact**: What this affects — APIs, behavior, dependencies, deployment, breaking changes
-   - **Testing**: How it was tested or what tests were added/modified (if applicable)
+6. Write a PR description as plain prose — a few short paragraphs, like a human developer would write in a Slack message or code review note. Cover what changed, why, and anything a reviewer should know (breaking changes, deployment steps, test coverage). Keep it natural and direct.
 7. Create the PR using `gh pr create --base <parent-branch> --title "<type>: <subject>" --body "<description>"`.
 
 ## Rules
@@ -29,3 +25,20 @@ Create a pull request for the current branch against its parent branch.
   - Any AI/assistant attribution or co-author trailers
 - Do not add `--reviewer`, `--assignee`, or `--label` flags unless explicitly asked.
 - If `gh` CLI is not authenticated or unavailable, output the title and body for manual use instead.
+
+## Style (avoid looking AI-generated)
+
+- No markdown headings (`##`, `###`) in the body. Use plain paragraphs.
+- No bold-label patterns like `**What:**`, `**Why:**`, `**Testing:**`.
+- No bullet-point-heavy structure. Prefer sentences and short paragraphs.
+- No summary/overview sections that restate the title.
+- No "This PR..." opener — just describe the change directly.
+- No words like "comprehensive", "robust", "seamless", "enhance", "leverage", "streamline".
+- Write like a terse engineer, not a press release.
+
+## Formatting within prose
+
+- **Bold for key architectural statements**: Use bold sparingly to call out the single most important design decision or structural choice in a paragraph. One bold phrase per paragraph max.
+- **Inline code for technical identifiers**: Wrap type names, function names, config fields, feature flags, and CLI commands in backticks (e.g., `ThresholdDecryptionContext`, `make threshold-e2e frost=true`). Plain English stays unformatted.
+- **One idea per paragraph**: Break after each logical unit — the "what" paragraph, the "how it works" paragraph, the "testing" paragraph. Don't wall-of-text multiple concepts together.
+- **Drop trivial changes from the description**: Minor port changes, formatting fixes, import reordering — if it's obvious from the diff and not interesting to a reviewer, leave it out of the body.

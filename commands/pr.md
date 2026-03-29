@@ -10,7 +10,8 @@ Create a pull request for the current branch against its parent branch.
 4. Determine the parent/base branch: check if the branch was created from `main`, `master`, or another branch. Use `git log --oneline --graph --all -20` if unclear.
 5. Write a conventional commit title in the format `type: subject` where type is one of: feat, fix, refactor, docs, test, chore, perf, ci, build.
 6. Write a PR description as plain prose — a few short paragraphs, like a human developer would write in a Slack message or code review note. Cover what changed, why, and anything a reviewer should know (breaking changes, deployment steps, test coverage). Keep it natural and direct.
-7. Create the PR using `gh pr create --base <parent-branch> --title "<type>: <subject>" --body "<description>"`.
+7. Include a short testing paragraph at the end describing how correctness was verified. Focus on what matters to a reviewer: which test suites cover the changed code paths, any new test cases added, E2E scenarios run, or manual verification steps. Do NOT list lint/format commands (`cargo check`, `clippy`, `fmt`) — those are table stakes, not testing. Omit entirely for docs-only or trivial changes.
+8. Create the PR using `gh pr create --base <parent-branch> --title "<type>: <subject>" --body "<description>"`.
 
 ## Rules
 
@@ -42,3 +43,4 @@ Create a pull request for the current branch against its parent branch.
 - **Inline code for technical identifiers**: Wrap type names, function names, config fields, feature flags, and CLI commands in backticks (e.g., `ThresholdDecryptionContext`, `make threshold-e2e frost=true`). Plain English stays unformatted.
 - **One idea per paragraph**: Break after each logical unit — the "what" paragraph, the "how it works" paragraph, the "testing" paragraph. Don't wall-of-text multiple concepts together.
 - **Drop trivial changes from the description**: Minor port changes, formatting fixes, import reordering — if it's obvious from the diff and not interesting to a reviewer, leave it out of the body.
+- **Testing paragraph**: If relevant, end with a short paragraph on how correctness was verified. Name the test suites, E2E scenarios, or manual steps — not lint commands. Examples: "Existing `make gateway_e2e` and `make multichain-routing-e2e` cover the changed certificate generation path. Fallback behavior (no updater configured) tested via single-chain `make e2e scenario=basic`." or "Added unit test `test_batch_partial_failure_strips_poison_items` covering the strip-and-retry path." Omit for docs-only or trivial changes.
